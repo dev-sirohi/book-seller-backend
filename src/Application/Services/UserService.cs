@@ -7,5 +7,6 @@ namespace Application.Services
     public class UserService : IUserService
     {
         public Task<UserDto?> GetByIdAsync(Guid id) => Task.FromResult<UserDto?>(null);
+        public Task<UserDto?> GetByEmailAsync(string email) => Task.FromResult<UserDto?>(null);
     }
 }
