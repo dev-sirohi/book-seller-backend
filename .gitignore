@@ -1,0 +1,41 @@
+# .NET build outputs
+bin/
+obj/
+
+# User-specific files
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+
+# Visual Studio Code
+.vscode/
+
+# Rider
+.idea/
+*.sln.iml
+
+# OS generated files
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+
+# Entity Framework Migrations
+Migrations/
+
+# Others
+*.swp
+*.tmp
+
+# ASP.NET secrets
+secrets.json
+
+# Test results
+TestResults/
+
+# NuGet packages
+*.nupkg
+packages/
+.nuget/
