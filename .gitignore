@@ -39,3 +39,4 @@ TestResults/
 *.nupkg
 packages/
 .nuget/
+/.vs/book-seller-backend
