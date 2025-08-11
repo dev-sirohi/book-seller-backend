@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
+using System.Threading.Tasks;
 
 namespace Api.Controllers
 {
@@ -6,6 +7,12 @@ namespace Api.Controllers
     [Route("api/[controller]")]
     public class LandingController : ControllerBase
     {
-        // Actions for landing page features
+        // Example endpoint reformatted like Login
+        [HttpGet("featured-books")]
+        public async Task<IActionResult> GetFeaturedBooks()
+        {
+            // TODO: Implement logic
+            return Ok();
+        }
     }
 }

@@ -4,6 +4,7 @@ using Application.Interfaces;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using System.Security.Claims;
+using Common;
 
 namespace Api.Controllers
 {
@@ -20,39 +21,99 @@ namespace Api.Controllers
         [HttpPost("login")]
         public async Task<IActionResult> Login([FromBody] LoginRequestDto dto)
         {
-            var result = await _authService.LoginAsync(dto);
-            if (result == null) return Unauthorized();
-            return Ok(result);
+            ResultWrapper rw = new ResultWrapper();
+            try
+            {
+                rw.Data = (LoginResponseDto?)(await _authService.LoginAsync(dto));
+                if (rw.Data == null)
+                {
+                    rw.Success = false;
+                    rw.Message = "Invalid email or password.";
+                    return Unauthorized(rw);
+                }
+            }
+            catch (Exception ex)
+            {
+                rw.Success = false;
+                rw.Message = ex.Message;
+                return BadRequest(rw);
+            }
+
+            return Ok(rw);
         }
 
         [HttpPost("register")]
         public async Task<IActionResult> Register([FromBody] RegisterRequestDto dto)
         {
-            var result = await _authService.RegisterAsync(dto);
-            if (result == null) return BadRequest();
-            return Ok(result);
+            ResultWrapper rw = new ResultWrapper();
+            try
+            {
+                rw.Data = (RegisterResponseDto?)(await _authService.RegisterAsync(dto));
+                if (rw.Data == null)
+                {
+                    rw.Success = false;
+                    rw.Message = "Invalid email or password.";
+                    return Unauthorized(rw);
+                }
+            }
+            catch (Exception ex)
+            {
+                rw.Success = false;
+                rw.Message = ex.Message;
+                return BadRequest(rw);
+            }
+
+            return Ok(rw);
         }
 
         [Authorize]
         [HttpGet("profile")]
         public async Task<IActionResult> Profile()
         {
+            ResultWrapper rw = new ResultWrapper();
+            try
+            {
+                var email = User.FindFirstValue(ClaimTypes.Name) ?? User.FindFirstValue(ClaimTypes.Email);
+                if (string.IsNullOrEmpty(email)) return Unauthorized();
+                var user = await _authService.GetProfileAsync(email);
+                if (user == null)
+                {
+                    rw.Success = false;
+                    rw.Message = "Invalid email or password.";
+                    return Unauthorized(rw);
+                }
+                rw.Data = user;
+            }
+            catch (Exception ex)
+            {
+                rw.Success = false;
+                rw.Message = ex.Message;
+                return BadRequest(rw);
+            }
             // Get email from JWT claims
-            var email = User.FindFirstValue(ClaimTypes.Name) ?? User.FindFirstValue(ClaimTypes.Email);
-            if (string.IsNullOrEmpty(email)) return Unauthorized();
-            var user = await _authService.GetProfileAsync(email);
-            if (user == null) return NotFound();
-            return Ok(new { user });
+            
+            return Ok(rw);
         }
 
         [Authorize]
         [HttpPost("logout")]
         public async Task<IActionResult> Logout()
         {
+            ResultWrapper rw = new ResultWrapper();
+            try
+            {
+                var token = Request.Headers["Authorization"].ToString().Replace("Bearer ", "");
+                await _authService.LogoutAsync(token);
+            }
+            catch (Exception ex)
+            {
+                rw.Success = false;
+                rw.Message = ex.Message;
+                return BadRequest(rw);
+            }
             // For demo, get token from header
-            var token = Request.Headers["Authorization"].ToString().Replace("Bearer ", "");
-            await _authService.LogoutAsync(token);
-            return Ok(new { success = true });
+            
+            return Ok(rw);
         }
     }
 }

@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
+using System.Threading.Tasks;
 
 namespace Api.Controllers
 {
@@ -6,6 +7,12 @@ namespace Api.Controllers
     [Route("api/[controller]")]
     public class CollectionsController : ControllerBase
     {
-        // Actions for collections features
+        // Example endpoint reformatted like Login
+        [HttpGet("user")]
+        public async Task<IActionResult> GetUserCollections()
+        {
+            // TODO: Implement logic
+            return Ok();
+        }
     }
 }

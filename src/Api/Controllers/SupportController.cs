@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
+using System.Threading.Tasks;
 
 namespace Api.Controllers
 {
@@ -6,6 +7,12 @@ namespace Api.Controllers
     [Route("api/[controller]")]
     public class SupportController : ControllerBase
     {
-        // Actions for support features
+        // Example endpoint reformatted like Login
+        [HttpGet("top-picks")]
+        public async Task<IActionResult> GetTopPicks()
+        {
+            // TODO: Implement logic
+            return Ok();
+        }
     }
 }
