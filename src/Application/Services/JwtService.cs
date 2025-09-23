@@ -4,7 +4,8 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
 using Microsoft.IdentityModel.Tokens;
-using Application.DTOs;
+using Domain.DTO;
+using Domain.Entities;
 using Microsoft.Extensions.Configuration;
 
 namespace Application.Services
@@ -24,7 +25,7 @@ namespace Application.Services
             _expiryMinutes = int.TryParse(configuration["Jwt:ExpiryMinutes"], out var min) ? min : 60;
         }
 
-        public string GenerateToken(UserDto user)
+        public string GenerateToken(User user)
         {
             var claims = new List<Claim>
             {

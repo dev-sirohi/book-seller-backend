@@ -1,5 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
-using Application.DTOs;
+using Domain.DTO;
 using Application.Interfaces;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
@@ -19,18 +19,29 @@ namespace Api.Controllers
         }
 
         [HttpPost("login")]
-        public async Task<IActionResult> Login([FromBody] LoginRequestDto dto)
+        public async Task<IActionResult> Login([FromBody] LoginRequestDTO loginRequestParams)
         {
             ResultWrapper rw = new ResultWrapper();
+            LoginReturnDTO loginReturnDTO = new LoginReturnDTO();
+
             try
             {
-                rw.Data = (LoginResponseDto?)(await _authService.LoginAsync(dto));
-                if (rw.Data == null)
+                if (string.IsNullOrEmpty(loginRequestParams.Email)
+                    || string.IsNullOrEmpty(loginRequestParams.Password))
                 {
-                    rw.Success = false;
-                    rw.Message = "Invalid email or password.";
-                    return Unauthorized(rw);
+                    throw new Exception("Invalid email or password");
                 }
+
+                rw = await _authService.LoginAsync(loginRequestParams);
+                if (!rw.Success)
+                {
+                    throw new Exception(rw.Message);
+                }
+                loginReturnDTO = (LoginReturnDTO)(rw.Data);
+
+                rw.Data = loginReturnDTO;
+                rw.Success = true;
+                rw.Message = "Login successful";
             }
             catch (Exception ex)
             {
@@ -52,7 +63,7 @@ namespace Api.Controllers
                 if (rw.Data == null)
                 {
                     rw.Success = false;
-                    rw.Message = "Invalid email or password.";
+                    rw.Message = "Invalid email or password";
                     return Unauthorized(rw);
                 }
             }

@@ -14,7 +14,7 @@
 │   ├── DTOs/
 │   │   ├── BookDto.cs
 │   │   ├── AuthorDto.cs
-│   │   ├── UserDto.cs
+│   │   ├── User.cs
 │   │   └── PurchaseDto.cs
 │   ├── Interfaces/
 │   │   ├── IBookService.cs

@@ -1,6 +1,9 @@
-using Application.DTOs;
 using Application.Interfaces;
+using Common;
+using Domain.Entities;
+using Domain.DTO;
 using Microsoft.Extensions.Configuration;
+using Newtonsoft.Json.Linq;
 using System.Threading.Tasks;
 
 namespace Application.Services
@@ -16,28 +19,86 @@ namespace Application.Services
             _jwtService = jwtService;
         }
 
-        public async Task<LoginResponseDto?> LoginAsync(LoginRequestDto dto)
+        public async Task<ResultWrapper> LoginAsync(LoginRequestDTO loginRequestParams)
         {
-            // TODO: Replace with real user validation
-            var user = await _userService.GetByEmailAsync(dto.Email);
-            if (user == null) return null;
-            // TODO: Validate password
-            var token = _jwtService.GenerateToken(user);
-            return new LoginResponseDto { Token = token, User = user };
+            ResultWrapper rw = new ResultWrapper();
+            string token = string.Empty;
+            User user = new User();
+
+            try
+            {
+                // TODO: Replace with real user validation
+                rw = await _userService.GetByEmailAsync(loginRequestParams.Email);
+                if (!rw.Success)
+                {
+                    throw new Exception(rw.Message);
+                }
+                user = (User)rw.Data;
+
+                if (user != null)
+                {
+                    token = _jwtService.GenerateToken(user);
+                }
+
+                // TODO: Validate password
+                if (string.IsNullOrEmpty(token))
+                {
+                    throw new Exception("Unable to login. Invalid token.");
+                }
+
+                rw.Data = new { Token = token, User = user };
+                rw.Success = true;
+            }
+            catch (Exception ex)
+            {
+                rw.Data = new { };
+                rw.Success = false;
+                rw.Message = ex.Message;
+            }
+
+            return rw;
         }
 
-        public async Task<RegisterResponseDto?> RegisterAsync(RegisterRequestDto dto)
+        public async Task<ResultWrapper> RegisterAsync(RegisterRequestDto dto)
         {
-            // TODO: Implement registration logic
-            var user = new UserDto { Id = Guid.NewGuid(), Name = dto.Name, Email = dto.Email };
-            // TODO: Save user
-            var token = _jwtService.GenerateToken(user);
-            return new RegisterResponseDto { Token = token, User = user };
+            ResultWrapper rw = new ResultWrapper();
+
+            try
+            {
+                // TODO: Implement registration logic
+                var user = new User { Id = Guid.NewGuid(), Name = dto.Name, Email = dto.Email };
+                // TODO: Save user
+                var token = _jwtService.GenerateToken(user);
+                rw.Data = new { Token = token, User = user };
+                rw.Success = true;
+            }
+            catch (Exception ex)
+            {
+                rw.Data = new { };
+                rw.Success = false;
+                rw.Message = ex.Message;
+            }
+
+            return rw;
         }
 
-        public async Task<UserDto?> GetProfileAsync(string email)
+        public async Task<ResultWrapper> GetProfileAsync(string email)
         {
-            return await _userService.GetByEmailAsync(email);
+            ResultWrapper rw = new ResultWrapper();
+
+            try
+            {
+                rw.Data = await _userService.GetByEmailAsync(email);
+                rw.Success = true;
+            }
+            catch (Exception ex)
+            {
+                rw.Data = new { };
+                rw.Success = false;
+                rw.Message = ex.Message;
+            }
+
+            return rw;
         }
 
         public Task LogoutAsync(string token)

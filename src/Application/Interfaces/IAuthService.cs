@@ -1,13 +1,14 @@
 using System.Threading.Tasks;
-using Application.DTOs;
+using Domain.DTO;
+using Common;
 
 namespace Application.Interfaces
 {
     public interface IAuthService
     {
-        Task<LoginResponseDto?> LoginAsync(LoginRequestDto dto);
-        Task<RegisterResponseDto?> RegisterAsync(RegisterRequestDto dto);
-        Task<UserDto?> GetProfileAsync(string email);
+        Task<ResultWrapper> LoginAsync(LoginRequestDTO dto);
+        Task<ResultWrapper> RegisterAsync(RegisterRequestDTO dto);
+        Task<ResultWrapper> GetProfileAsync(string email);
         Task LogoutAsync(string token);
     }
 }

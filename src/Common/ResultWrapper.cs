@@ -3,7 +3,7 @@
     public sealed class ResultWrapper
     {
         private bool _success = true;
-        private object? _data;
+        private object _data = new { };
         private string? _message;
         private bool _returnInvalidHttp = true;
         public bool Success
@@ -16,7 +16,7 @@
             get { return _message; }
             set { _message = value; }
         }
-        public object? Data
+        public object Data
         {
             get { return _data; }
             set { _data = value; }
