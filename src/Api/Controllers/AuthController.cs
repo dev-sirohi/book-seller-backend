@@ -3,10 +3,8 @@ using BSB.src.Common;
 using BSB.src.Common.Database.DBInterfaces;
 using BSB.src.Domain.DTO;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Identity.Data;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
-using System.Threading.Tasks;
 
 namespace Api.Controllers
 {

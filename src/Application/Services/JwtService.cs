@@ -7,7 +7,7 @@ using Microsoft.IdentityModel.Tokens;
 using Microsoft.Extensions.Configuration;
 using BSB.src.Domain.Entities;
 
-namespace Application.Services
+namespace BSB.src.Application.Services
 {
     public class JwtService
     {

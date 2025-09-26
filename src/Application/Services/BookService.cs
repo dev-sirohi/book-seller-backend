@@ -1,9 +1,8 @@
-using Application.DTOs;
-using Application.Interfaces;
+using BSB.src.Application.Interfaces;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
-namespace Application.Services
+namespace BSB.src.Application.Services
 {
     public class BookService : IBookService
     {

@@ -1,8 +1,6 @@
 ﻿using BSB.src.Common.Database;
 using BSB.src.Common.Database.DBInterfaces;
 using BSB.src.Common.Database.DBServices;
-using BSB.src.Domain;
-using System;
 
 namespace BSB.src.Common.DBServices
 {

@@ -1,14 +1,10 @@
-using Application.Interfaces;
 using BSB.src.Domain.Entities;
 using BSB.src.Domain.DTO;
-using Microsoft.Extensions.Configuration;
-using Newtonsoft.Json.Linq;
-using System.Threading.Tasks;
 using BSB.src.Common;
-using Microsoft.AspNetCore.Identity.Data;
 using BSB.src.Common.Database.DBInterfaces;
+using BSB.src.Application.Interfaces;
 
-namespace Application.Services
+namespace BSB.src.Application.Services
 {
     public class AuthService : IAuthService
     {

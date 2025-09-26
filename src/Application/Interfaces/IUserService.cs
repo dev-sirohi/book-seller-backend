@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using BSB.src.Common;
 using BSB.src.Common.Database.DBInterfaces;
 
-namespace Application.Interfaces
+namespace BSB.src.Application.Interfaces
 {
     public interface IUserService
     {

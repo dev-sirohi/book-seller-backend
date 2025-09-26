@@ -1,6 +1,7 @@
-using Application.Interfaces;
 
-namespace Application.Services
+using BSB.src.Application.Interfaces;
+
+namespace BSB.src.Application.Services
 {
     public class PublisherService : IPublisherService
     {

@@ -1,8 +1,9 @@
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
-using Application.Services;
 using System.Text;
-using Domain.Entities;
+using BSB.src.Domain.Entities;
+using BSB.src.Application.Interfaces;
+using BSB.src.Application.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -36,8 +37,8 @@ builder.Services.AddAuthentication(options =>
 
 // Dependency injection
 builder.Services.AddScoped<JwtService>();
-builder.Services.AddScoped<Application.Interfaces.IAuthService, Application.Services.AuthService>();
-builder.Services.AddScoped<Application.Interfaces.IUserService, Application.Services.UserService>();
+builder.Services.AddScoped<IAuthService, AuthService>();
+builder.Services.AddScoped<IUserService, UserService>();
 
 var app = builder.Build();
 

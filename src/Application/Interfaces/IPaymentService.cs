@@ -1,7 +1,7 @@
 using Application.DTOs;
 using System.Threading.Tasks;
 
-namespace Application.Interfaces
+namespace BSB.src.Application.Interfaces
 {
     public interface IPaymentService
     {

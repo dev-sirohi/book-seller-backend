@@ -1,8 +1,7 @@
-using Application.DTOs;
 using System.Threading.Tasks;
 using System.Collections.Generic;
 
-namespace Application.Interfaces
+namespace BSB.src.Application.Interfaces
 {
     public interface IBookService
     {
