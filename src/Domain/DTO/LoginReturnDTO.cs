@@ -1,6 +1,6 @@
-﻿namespace Domain.DTO
+﻿namespace BSB.src.Domain.DTO
 {
-    public class LoginReturnDTO
+    public class LoginReturnDto
     {
     }
 }

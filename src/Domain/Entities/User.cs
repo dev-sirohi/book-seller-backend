@@ -1,8 +1,9 @@
-namespace Domain.Entities
+namespace BSB.src.Domain.Entities
 {
     public class User
     {
-        public Guid Id { get; set; };
+        public long Id { get; set; }
+        public Guid UserId { get; set; }
         public string Name { get; set; } = string.Empty;
         public string Email { get; set; } = string.Empty;
     }

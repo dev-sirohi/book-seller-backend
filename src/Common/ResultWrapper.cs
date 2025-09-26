@@ -1,4 +1,4 @@
-﻿namespace Common
+﻿namespace BSB.src.Common
 {
     public sealed class ResultWrapper
     {

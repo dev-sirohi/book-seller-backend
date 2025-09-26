@@ -1,10 +1,12 @@
-using Microsoft.AspNetCore.Mvc;
-using Domain.DTO;
 using Application.Interfaces;
-using System.Threading.Tasks;
+using BSB.src.Common;
+using BSB.src.Common.Database.DBInterfaces;
+using BSB.src.Domain.DTO;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity.Data;
+using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
-using Common;
+using System.Threading.Tasks;
 
 namespace Api.Controllers
 {
@@ -13,31 +15,43 @@ namespace Api.Controllers
     public class AuthController : ControllerBase
     {
         private readonly IAuthService _authService;
-        public AuthController(IAuthService authService)
+        private readonly IConfiguration _configuration;
+        private readonly IDBConnection _cn;
+        public AuthController(
+            IConfiguration configuration,
+            IDBConnection connection,
+            IAuthService authService)
         {
+            _configuration = configuration;
+            _cn = connection;
             _authService = authService;
         }
 
         [HttpPost("login")]
-        public async Task<IActionResult> Login([FromBody] LoginRequestDTO loginRequestParams)
+        public async Task<IActionResult> Login([FromBody] LoginRequestDto loginRequestParams)
         {
             ResultWrapper rw = new ResultWrapper();
-            LoginReturnDTO loginReturnDTO = new LoginReturnDTO();
+            LoginReturnDto loginReturnDTO = new LoginReturnDto();
 
             try
             {
-                if (string.IsNullOrEmpty(loginRequestParams.Email)
+                using (IDBTransaction tx = _cn.BeginTransaction())
+                {
+                    if (string.IsNullOrEmpty(loginRequestParams.Email)
                     || string.IsNullOrEmpty(loginRequestParams.Password))
-                {
-                    throw new Exception("Invalid email or password");
-                }
+                    {
+                        throw new Exception("Invalid email or password");
+                    }
 
-                rw = await _authService.LoginAsync(loginRequestParams);
-                if (!rw.Success)
-                {
-                    throw new Exception(rw.Message);
+                    rw = await _authService.LoginAsync(loginRequestParams, _cn, tx);
+                    if (!rw.Success)
+                    {
+                        throw new Exception(rw.Message);
+                    }
+                    loginReturnDTO = (LoginReturnDto)(rw.Data);
+
+                    await tx.CommitAsync();
                 }
-                loginReturnDTO = (LoginReturnDTO)(rw.Data);
 
                 rw.Data = loginReturnDTO;
                 rw.Success = true;

@@ -1,4 +1,4 @@
-namespace Domain.Enums
+namespace BSB.src.Domain.Enums
 {
     public enum Genre
     {

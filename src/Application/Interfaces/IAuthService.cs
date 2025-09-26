@@ -1,14 +1,16 @@
 using System.Threading.Tasks;
-using Domain.DTO;
-using Common;
+using BSB.src.Common;
+using BSB.src.Common.Database.DBInterfaces;
+using BSB.src.Domain.DTO;
+using Microsoft.AspNetCore.Identity.Data;
 
 namespace Application.Interfaces
 {
     public interface IAuthService
     {
-        Task<ResultWrapper> LoginAsync(LoginRequestDTO dto);
-        Task<ResultWrapper> RegisterAsync(RegisterRequestDTO dto);
-        Task<ResultWrapper> GetProfileAsync(string email);
-        Task LogoutAsync(string token);
+        Task<ResultWrapper> LoginAsync(LoginRequestDto dto, IDBConnection connection, IDBTransaction transaction);
+        Task<ResultWrapper> RegisterAsync(RegisterRequestDto dto, IDBConnection connection, IDBTransaction transaction);
+        Task<ResultWrapper> GetProfileAsync(string email, IDBConnection connection, IDBTransaction transaction);
+        Task LogoutAsync(string token, IDBConnection connection, IDBTransaction transaction);
     }
 }

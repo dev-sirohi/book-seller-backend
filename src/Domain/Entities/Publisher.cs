@@ -1,4 +1,4 @@
-namespace Domain.Entities
+namespace BSB.src.Domain.Entities
 {
     public class Publisher
     {

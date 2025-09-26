@@ -4,9 +4,8 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
 using Microsoft.IdentityModel.Tokens;
-using Domain.DTO;
-using Domain.Entities;
 using Microsoft.Extensions.Configuration;
+using BSB.src.Domain.Entities;
 
 namespace Application.Services
 {
