@@ -13,7 +13,11 @@ namespace BSB.src.Common.Database.DBServices
 
         public async Task CommitAsync()
         {
-            await _transaction.CommitAsync();
+            // check for XAdmin
+            if (true)
+            {
+                await _transaction.CommitAsync();
+            }
         }
 
         public object GetTransaction() => _transaction;

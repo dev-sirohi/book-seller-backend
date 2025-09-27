@@ -4,6 +4,10 @@ using System.Text;
 using BSB.src.Domain.Entities;
 using BSB.src.Application.Interfaces;
 using BSB.src.Application.Services;
+using BSB.src.Common.Database;
+using BSB.src.Common.Database.DBInterfaces;
+using Microsoft.Extensions.Options;
+using BSB.src.Common.Database.DBServices;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -34,6 +38,22 @@ builder.Services.AddAuthentication(options =>
         IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtSecret))
     };
 });
+
+var sqlAppSettings = builder.Configuration.GetSection("SQL");
+builder.Services.Configure<DBAppSettings>(sqlAppSettings);
+
+builder.Services.AddScoped<IDBConnection>(sp =>
+{
+    var settings = sp.GetRequiredService<IOptions<DBAppSettings>>().Value;
+    if (string.IsNullOrWhiteSpace(settings.ConnectionStrings?["DefaultConnection"]))
+    {
+        throw new InvalidOperationException("DB:ConnectionString is not configured");
+    }
+
+    IDBConnection cn = new DBConnection(settings.ConnectionStrings["DefaultConnection"]);
+    return cn;
+});
+
 
 // Dependency injection
 builder.Services.AddScoped<JwtService>();

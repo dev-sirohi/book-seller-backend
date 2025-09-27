@@ -1,4 +1,4 @@
-using Application.Interfaces;
+using BSB.src.Application.Interfaces;
 using BSB.src.Common;
 using BSB.src.Common.Database.DBInterfaces;
 using BSB.src.Domain.DTO;
@@ -13,14 +13,12 @@ namespace Api.Controllers
     public class AuthController : ControllerBase
     {
         private readonly IAuthService _authService;
-        private readonly IConfiguration _configuration;
         private readonly IDBConnection _cn;
         public AuthController(
             IConfiguration configuration,
             IDBConnection connection,
             IAuthService authService)
         {
-            _configuration = configuration;
             _cn = connection;
             _authService = authService;
         }
@@ -33,10 +31,10 @@ namespace Api.Controllers
 
             try
             {
+                await _cn.OpenAsync();
                 using (IDBTransaction tx = _cn.BeginTransaction())
                 {
-                    if (string.IsNullOrEmpty(loginRequestParams.Email)
-                    || string.IsNullOrEmpty(loginRequestParams.Password))
+                    if (string.IsNullOrEmpty(loginRequestParams.Email) || string.IsNullOrEmpty(loginRequestParams.Password))
                     {
                         throw new Exception("Invalid email or password");
                     }
@@ -65,78 +63,78 @@ namespace Api.Controllers
             return Ok(rw);
         }
 
-        [HttpPost("register")]
-        public async Task<IActionResult> Register([FromBody] RegisterRequestDto dto)
-        {
-            ResultWrapper rw = new ResultWrapper();
-            try
-            {
-                rw.Data = (RegisterResponseDto?)(await _authService.RegisterAsync(dto));
-                if (rw.Data == null)
-                {
-                    rw.Success = false;
-                    rw.Message = "Invalid email or password";
-                    return Unauthorized(rw);
-                }
-            }
-            catch (Exception ex)
-            {
-                rw.Success = false;
-                rw.Message = ex.Message;
-                return BadRequest(rw);
-            }
+        //[HttpPost("register")]
+        //public async Task<IActionResult> Register([FromBody] RegisterRequestDto dto)
+        //{
+        //    ResultWrapper rw = new ResultWrapper();
+        //    try
+        //    {
+        //        rw.Data = (RegisterRequestDto?)(await _authService.RegisterAsync(dto));
+        //        if (rw.Data == null)
+        //        {
+        //            rw.Success = false;
+        //            rw.Message = "Invalid email or password";
+        //            return Unauthorized(rw);
+        //        }
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        rw.Success = false;
+        //        rw.Message = ex.Message;
+        //        return BadRequest(rw);
+        //    }
 
-            return Ok(rw);
-        }
+        //    return Ok(rw);
+        //}
 
-        [Authorize]
-        [HttpGet("profile")]
-        public async Task<IActionResult> Profile()
-        {
-            ResultWrapper rw = new ResultWrapper();
-            try
-            {
-                var email = User.FindFirstValue(ClaimTypes.Name) ?? User.FindFirstValue(ClaimTypes.Email);
-                if (string.IsNullOrEmpty(email)) return Unauthorized();
-                var user = await _authService.GetProfileAsync(email);
-                if (user == null)
-                {
-                    rw.Success = false;
-                    rw.Message = "Invalid email or password.";
-                    return Unauthorized(rw);
-                }
-                rw.Data = user;
-            }
-            catch (Exception ex)
-            {
-                rw.Success = false;
-                rw.Message = ex.Message;
-                return BadRequest(rw);
-            }
-            // Get email from JWT claims
+        //[Authorize]
+        //[HttpGet("profile")]
+        //public async Task<IActionResult> Profile()
+        //{
+        //    ResultWrapper rw = new ResultWrapper();
+        //    try
+        //    {
+        //        var email = User.FindFirstValue(ClaimTypes.Name) ?? User.FindFirstValue(ClaimTypes.Email);
+        //        if (string.IsNullOrEmpty(email)) return Unauthorized();
+        //        var user = await _authService.GetProfileAsync(email);
+        //        if (user == null)
+        //        {
+        //            rw.Success = false;
+        //            rw.Message = "Invalid email or password.";
+        //            return Unauthorized(rw);
+        //        }
+        //        rw.Data = user;
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        rw.Success = false;
+        //        rw.Message = ex.Message;
+        //        return BadRequest(rw);
+        //    }
+        //    // Get email from JWT claims
             
-            return Ok(rw);
-        }
+        //    return Ok(rw);
+        //}
 
-        [Authorize]
-        [HttpPost("logout")]
-        public async Task<IActionResult> Logout()
-        {
-            ResultWrapper rw = new ResultWrapper();
-            try
-            {
-                var token = Request.Headers["Authorization"].ToString().Replace("Bearer ", "");
-                await _authService.LogoutAsync(token);
-            }
-            catch (Exception ex)
-            {
-                rw.Success = false;
-                rw.Message = ex.Message;
-                return BadRequest(rw);
-            }
-            // For demo, get token from header
+        //[Authorize]
+        //[HttpPost("logout")]
+        //public async Task<IActionResult> Logout()
+        //{
+        //    ResultWrapper rw = new ResultWrapper();
+        //    try
+        //    {
+        //        var token = Request.Headers["Authorization"].ToString().Replace("Bearer ", "");
+        //        await _authService.LogoutAsync(token);
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        rw.Success = false;
+        //        rw.Message = ex.Message;
+        //        return BadRequest(rw);
+        //    }
+        //    // For demo, get token from header
             
-            return Ok(rw);
-        }
+        //    return Ok(rw);
+        //}
     }
 }

@@ -17,6 +17,11 @@ namespace BSB.src.Common.Database.DBServices
             await _connection.OpenAsync();
         }
 
+        public void Open()
+        {
+            _connection.Open();
+        }
+
         public async Task CloseAsync()
         {
             await _connection.CloseAsync();
