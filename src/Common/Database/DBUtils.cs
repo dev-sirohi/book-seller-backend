@@ -7,7 +7,7 @@ namespace BSB.src.Common.Database
 {
     public class DBUtils
     {
-        public static SqlParameter[] ConvertDictToSqlParameter(Dictionary<string, object?>? dict)
+        public static SqlParameter[] ConvertDictToSqlParameter(Dictionary<string, object>? dict)
         {
             if (dict == null || dict.Count == 0)
             {
@@ -40,23 +40,27 @@ namespace BSB.src.Common.Database
         public static List<dynamic> DataTableToObjectList(DataTable? table)
         {
             var result = new List<dynamic>();
+            if (table is null) return result;
 
-            if (table is not null)
+            var columns = table.Columns.Cast<DataColumn>()
+                               .Select((c, i) => (Name: c.ColumnName, Index: i))
+                               .ToArray();
+
+            foreach (DataRow row in table.Rows)
             {
-                foreach (DataRow row in table.Rows)
-                {
-                    dynamic obj = new ExpandoObject();
-                    foreach (DataColumn col in table.Columns)
-                    {
-                        obj[col.ColumnName] = Common.Database.DBUtils.DBNullToNull(row[col]);
-                    }
+                var exp = new ExpandoObject();
+                var dict = (IDictionary<string, object?>)exp;
+                var items = row.ItemArray;
 
-                    result.Add(obj);
-                }
+                for (int i = 0; i < columns.Length; i++)
+                    dict[columns[i].Name] = Common.Database.DBUtils.DBNullToNull(items[columns[i].Index]);
+
+                result.Add(exp);
             }
 
             return result;
         }
+
 
         public static List<T>? DataTableToObjectList<T>(DataTable? table)
         {

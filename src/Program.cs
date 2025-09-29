@@ -8,6 +8,10 @@ using BSB.src.Common.Database;
 using BSB.src.Common.Database.DBInterfaces;
 using Microsoft.Extensions.Options;
 using BSB.src.Common.Database.DBServices;
+using BSB.src.Common;
+using System.Security.AccessControl;
+
+var basePath = AppContext.BaseDirectory;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -16,10 +20,16 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
+ConfigurationServices.SetConfiguration(builder.Configuration);
+
 // JWT configuration
 var jwtSection = builder.Configuration.GetSection("Jwt");
 builder.Services.Configure<JwtOptions>(jwtSection);
-var jwtSecret = builder.Configuration["Jwt:Secret"] ?? "dev_secret_key_1234567890";
+var jwtSecret = builder.Configuration["Jwt:Secret"];
+if (string.IsNullOrWhiteSpace(jwtSecret))
+{
+    throw new InvalidOperationException("Configuration error: Jwt:Secret is not set. Check appsettings.json or environment variables.");
+}
 builder.Services.AddAuthentication(options =>
 {
     options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
@@ -39,18 +49,9 @@ builder.Services.AddAuthentication(options =>
     };
 });
 
-var sqlAppSettings = builder.Configuration.GetSection("SQL");
-builder.Services.Configure<DBAppSettings>(sqlAppSettings);
-
 builder.Services.AddScoped<IDBConnection>(sp =>
 {
-    var settings = sp.GetRequiredService<IOptions<DBAppSettings>>().Value;
-    if (string.IsNullOrWhiteSpace(settings.ConnectionStrings?["DefaultConnection"]))
-    {
-        throw new InvalidOperationException("DB:ConnectionString is not configured");
-    }
-
-    IDBConnection cn = new DBConnection(settings.ConnectionStrings["DefaultConnection"]);
+    IDBConnection cn = new DBConnection(ConfigurationServices.GetConnectionString(BSB.src.Domain.Enums.Global.Constants.DEFAULT_CONNECTION) ?? throw new Exception("Default connection not set up"));
     return cn;
 });
 

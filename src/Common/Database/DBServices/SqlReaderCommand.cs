@@ -1,6 +1,7 @@
 ﻿using BSB.src.Common.Database.DBInterfaces;
 using Microsoft.Data.SqlClient;
 using System.Data;
+using System.Reflection.Metadata.Ecma335;
 
 namespace BSB.src.Common.Database.DBServices
 {
@@ -8,13 +9,13 @@ namespace BSB.src.Common.Database.DBServices
     {
         private readonly string _query;
         private readonly SqlParameter[]? _parameters;
-        private readonly bool _getFirstOrDefault = false;
 
-        public SqlReaderCommand(string query, SqlParameter[]? parameters = null, bool getFirstOrDefault = false)
+        public string Query { get { return _query; } }
+
+        public SqlReaderCommand(string query, SqlParameter[]? parameters)
         {
             _query = query;
-            _parameters = parameters ?? new SqlParameter[0];
-            _getFirstOrDefault = getFirstOrDefault;
+            _parameters = parameters;
         }
 
         public async Task<object?> ExecuteAsync(
@@ -32,30 +33,73 @@ namespace BSB.src.Common.Database.DBServices
                     dt.Load(reader);
                 }
 
-                if (_getFirstOrDefault)
-                {
-                    return dt;
-                }
-
                 return dt;
             }
         }
 
-        public async Task<object?> ExecuteAsync<T>(
+        public async Task<DataSet?> ExecuteAsync(
             IDBConnection connection,
-            IDBTransaction transaction)
+            IDBTransaction transaction,
+            Dictionary<string, int> dataSetCounterDict)
         {
+            DataSet ds = new DataSet();
+
             using (SqlCommand cmd = new SqlCommand(_query, (SqlConnection)connection.GetConnection(), (SqlTransaction)transaction.GetTransaction()))
             {
                 cmd.Parameters.AddRange(_parameters);
 
-                if (_getFirstOrDefault)
+                using (SqlDataReader reader = await cmd.ExecuteReaderAsync())
                 {
-                    return (Common.Database.DBUtils.DataTableToObjectList<T>((DataTable?)await ExecuteAsync(connection, transaction)) ?? new List<T>()).FirstOrDefault();
+                    int tableIndex = 0;
+
+                    do
+                    {
+                        var dt = new DataTable();
+                        dt.Load(reader);
+                        foreach (KeyValuePair<string, int> entry in dataSetCounterDict)
+                        {
+                            if (entry.Value == tableIndex)
+                            {
+                                dt.TableName = entry.Key;
+                                tableIndex++;
+                                break;
+                            }
+                        }
+                        ds.Tables.Add(dt);
+                    } while (await reader.NextResultAsync());
                 }
 
-                return Common.Database.DBUtils.DataTableToObjectList<T>((DataTable?)await ExecuteAsync(connection, transaction));
+                return ds;
             }
+        }
+
+        public async Task<List<T>> ExecuteAsync<T>(
+            IDBConnection connection,
+            IDBTransaction transaction)
+        {
+            List<T>? result = Common.Database.DBUtils.DataTableToObjectList<T>((DataTable?)await ExecuteAsync(connection, transaction));
+
+            if (result != null)
+            {
+                return result;
+            }
+
+            return new List<T>();
+        }
+
+        public async Task<T?> ExecuteAsync<T>(
+            IDBConnection connection,
+            IDBTransaction transaction,
+            bool getFirstOrDefault)
+        {
+            List<T>? result = Common.Database.DBUtils.DataTableToObjectList<T>((DataTable?)await ExecuteAsync(connection, transaction));
+
+            if (result == null)
+            {
+                result = new List<T>();
+            }
+
+            return result.FirstOrDefault();
         }
     }
 }

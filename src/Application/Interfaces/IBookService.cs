@@ -5,8 +5,8 @@ namespace BSB.src.Application.Interfaces
 {
     public interface IBookService
     {
-        Task<IEnumerable<BookDto>> GetAllAsync();
-        Task<BookDto?> GetByIdAsync(Guid id);
+        //Task<IEnumerable<BookDto>> GetAllAsync();
+        //Task<BookDto?> GetByIdAsync(Guid id);
         // Add more methods as needed
     }
 }

@@ -8,20 +8,21 @@ namespace BSB.src.Application.Services
 {
     public class UserService : IUserService
     {
-        public async Task<ResultWrapper> GetByUserIdAsync(Guid userId, IDBConnection connection, IDBTransaction transaction)
+        public async Task<ResultWrapper> GetByUserIdAsync(Guid userId, IDBConnection cn, IDBTransaction tx)
         {
             ResultWrapper rw = new ResultWrapper();
 
             try
             {
-                User? user = (User?)await new DBCommandFactory
-                    .CommandBuilder()
-                    .SetQuery(@"SELECT TOP 1 * FROM User WHERE UserId = @param_USERID")
-                    .SetParams(new { userId })
-                    .SetDBCommandExecuterType(Domain.Enums.Database.DBCommandExecutorTypes.READER)
-                    .GetFirstOrDefault()
-                    .Build()
-                    .ExecuteAsync<User>(connection, transaction);
+                var user = await new DBCommandFactory
+                    .CommandBuilder(new DBCommand
+                    {
+                        TableQuery = "TUser",
+                        WhereClauseList = new List<string>() { "UserId = @param_USERID" },
+                        Params = new { userId },
+                        Connection = cn,
+                        Transaction = tx
+                    }).ExecuteAsync<User>(true);
 
                 if (user is null)
                 {
@@ -40,20 +41,21 @@ namespace BSB.src.Application.Services
 
             return rw;
         }
-        public async Task<ResultWrapper> GetByEmailAsync(string email, IDBConnection connection, IDBTransaction transaction)
+        public async Task<ResultWrapper> GetByEmailAsync(string email, IDBConnection cn, IDBTransaction tx)
         {
             ResultWrapper rw = new ResultWrapper();
 
             try
             {
-                User? user = (User?)await new DBCommandFactory
-                    .CommandBuilder()
-                    .SetQuery(@"SELECT TOP 1 * FROM User WHERE Email = @param_EMAIL")
-                    .SetParams(new { email })
-                    .SetDBCommandExecuterType(Domain.Enums.Database.DBCommandExecutorTypes.READER)
-                    .GetFirstOrDefault()
-                    .Build()
-                    .ExecuteAsync<User>(connection, transaction);
+                var user = await new DBCommandFactory
+                    .CommandBuilder(new DBCommand
+                    {
+                        TableQuery = @"TUser",
+                        WhereClauseList = new List<string>() { "Email = @param_EMAIL", "IsActive = 1" },
+                        Params = new { email },
+                        Connection = cn,
+                        Transaction = tx
+                    }).ExecuteAsync<User>(true);
 
                 if (user is null)
                 {
@@ -73,29 +75,27 @@ namespace BSB.src.Application.Services
             return rw;
         }
 
-        public async Task<ResultWrapper> VerifyUserPassword(Guid userId, string password, IDBConnection connection, IDBTransaction transaction)
+        public async Task<ResultWrapper> VerifyUserPassword(Guid userId, string password, IDBConnection cn, IDBTransaction tx)
         {
             ResultWrapper rw = new ResultWrapper();
 
             try
             {
-                UserAuth? userAuth = (UserAuth?)await new DBCommandFactory
-                    .CommandBuilder()
-                    .SetQuery(@"SELECT TOP 1 * FROM UserAuth WHERE UserId = @param_USERID AND ExpiredFlag <> 1")
-                    .SetParams(new { userId })
-                    .SetDBCommandExecuterType(Domain.Enums.Database.DBCommandExecutorTypes.READER)
-                    .GetFirstOrDefault()
-                    .Build()
-                    .ExecuteAsync<UserAuth>(connection, transaction);
+                var userAuthResult = await new DBCommandFactory
+                    .CommandBuilder(new DBCommand
+                    {
+                        TableQuery = "TUserAuth",
+                        Columns = new List<string>() { "1" },
+                        WhereClauseList = new List<string>() { "UserId = @param_USERID", "Password = @param_PASSWORD" },
+                        Params = new { userId, password = Utils.GenerateHash(password) },
+                        CommandExecType = Domain.Enums.Database.DBCommandExecutorTypes.SCALAR,
+                        Connection = cn,
+                        Transaction = tx
+                    }).ExecuteAsync<int>(true);
 
-                if (userAuth is null)
+                if (Convert.ToInt32(userAuthResult) == 0)
                 {
                     throw new Exception("Could not retrieve authentication data");
-                }
-
-                if (!userAuth.Password.Equals(Utils.GenerateHash(password)))
-                {
-                    throw new Exception("Invalid password");
                 }
 
                 rw.Success = true;

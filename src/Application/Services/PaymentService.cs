@@ -5,6 +5,6 @@ namespace BSB.src.Application.Services
 {
     public class PaymentService : IPaymentService
     {
-        public Task<bool> ProcessPaymentAsync(PurchaseDto purchase) => Task.FromResult(true);
+        //public Task<bool> ProcessPaymentAsync(PurchaseDto purchase) => Task.FromResult(true);
     }
 }

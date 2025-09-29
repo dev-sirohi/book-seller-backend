@@ -4,8 +4,8 @@
 BEGIN
     CREATE TABLE TUser
     (
-        Id INT IDENTITY(1,1),
-		UserId NVARCHAR(255) PRIMARY KEY,
+        Id INT IDENTITY(1,1) PRIMARY KEY,
+		UserId NVARCHAR(255) UNIQUE,
         Name NVARCHAR(255) NOT NULL,
 		Email NVARCHAR(255) NOT NULL UNIQUE,
         CreatedAt DATETIME2 NOT NULL DEFAULT SYSUTCDATETIME(),
@@ -69,4 +69,18 @@ END
 IF NOT EXISTS (SELECT 1 FROM TUserAuthLinkType WHERE NAME = 'Email Verification')
 BEGIN
     INSERT INTO TUserAuthLinkType(NAME) VALUES('Email Verification');
+END
+
+--TUser
+
+IF NOT EXISTS (SELECT 1 FROM TUser WHERE EMAIL = 'tester1@bsb.com')
+BEGIN
+    INSERT INTO TUser(UserId, Name, Email, IsEmailVerified, IsActive) VALUES('52112249-7859-4662-B46E-C1CACA1D85ED', 'Tester 1', 'tester1@bsb.com', 1, 1);
+END
+
+--TUserAuth
+
+IF NOT EXISTS (SELECT 1 FROM TUserAuth WHERE UserId = (SELECT TOP 1 UserId FROM TUser))
+BEGIN
+    INSERT INTO TUserAuth(UserId, Password) VALUES((SELECT TOP 1 UserId FROM TUser), 'tester1@bsb');
 END

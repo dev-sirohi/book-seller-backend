@@ -1,5 +1,6 @@
 ﻿using BSB.src.Common.Database.DBInterfaces;
 using Microsoft.Data.SqlClient;
+using System.Data;
 
 namespace BSB.src.Common.Database.DBServices
 {
@@ -8,10 +9,10 @@ namespace BSB.src.Common.Database.DBServices
         private readonly string _query;
         private readonly SqlParameter[]? _parameters;
 
-        public SqlNonQueryCommand(string query, SqlParameter[]? parameters = null)
+        public SqlNonQueryCommand(string query, SqlParameter[]? parameters)
         {
             _query = query;
-            _parameters = parameters ?? new SqlParameter[0];
+            _parameters = parameters;
         }
 
         public async Task<object?> ExecuteAsync(
@@ -26,7 +27,17 @@ namespace BSB.src.Common.Database.DBServices
             }
         }
 
-        public Task<object?> ExecuteAsync<T>(IDBConnection dbConnection, IDBTransaction dbTransaction)
+        public Task<List<T>> ExecuteAsync<T>(IDBConnection dbConnection, IDBTransaction dbTransaction)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<T?> ExecuteAsync<T>(IDBConnection dbConnection, IDBTransaction dbTransaction, bool getFirstOrDefault)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<DataSet?> ExecuteAsync(IDBConnection dbConnection, IDBTransaction dbTransaction, Dictionary<string, int> dataSetCounterDict)
         {
             throw new NotImplementedException();
         }
