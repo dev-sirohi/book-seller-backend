@@ -215,7 +215,7 @@ namespace BSB.src.Common.DBServices
 
             public async Task<object?> ExecuteAsync()
             {
-                if (_connection is null)
+                if (_connection is null || _transaction is null)
                 {
                     using (IDBConnection cn = new DBConnection(ConfigurationServices.GetConnectionString(Global.Constants.DEFAULT_CONNECTION) ?? throw new ArgumentNullException()))
                     {
@@ -234,7 +234,7 @@ namespace BSB.src.Common.DBServices
 
             public async Task<List<T>> ExecuteAsync<T>()
             {
-                if (_connection is null)
+                if (_connection is null || _transaction is null)
                 {
                     using (IDBConnection cn = new DBConnection(ConfigurationServices.GetConnectionString(Global.Constants.DEFAULT_CONNECTION) ?? throw new ArgumentNullException()))
                     {
@@ -253,7 +253,7 @@ namespace BSB.src.Common.DBServices
 
             public async Task<T?> ExecuteAsync<T>(bool firstOrDefault)
             {
-                if (_connection is null)
+                if (_connection is null || _transaction is null)
                 {
                     using (IDBConnection cn = new DBConnection(ConfigurationServices.GetConnectionString(Global.Constants.DEFAULT_CONNECTION) ?? throw new ArgumentNullException()))
                     {
@@ -407,13 +407,20 @@ namespace BSB.src.Common.DBServices
             {
                 DataSet? result = new DataSet();
 
-                using (IDBConnection cn = _connection ?? new DBConnection(ConfigurationServices.GetConnectionString(Global.Constants.DEFAULT_CONNECTION) ?? throw new ArgumentNullException()))
+                if (_connection is null || _transaction is null)
                 {
-                    await cn.OpenAsync();
-                    using (IDBTransaction tx = _transaction ?? cn.BeginTransaction())
+                    using (IDBConnection cn = new DBConnection(ConfigurationServices.GetConnectionString(Global.Constants.DEFAULT_CONNECTION) ?? throw new ArgumentNullException()))
                     {
-                        result = await this.Build().ExecuteAsync(cn, tx, _dataSetCounterDict);
+                        await cn.OpenAsync();
+                        using (IDBTransaction tx = cn.BeginTransaction())
+                        {
+                            result = await this.Build().ExecuteAsync(cn, tx, _dataSetCounterDict);
+                        }
                     }
+                }
+                else
+                {
+                    result = await this.Build().ExecuteAsync(_connection, _transaction, _dataSetCounterDict);
                 }
 
                 this._multiCommandDataSet = result;
