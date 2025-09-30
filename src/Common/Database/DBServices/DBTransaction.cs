@@ -1,4 +1,5 @@
 ﻿using BSB.src.Common.Database.DBInterfaces;
+using BSB.src.Domain.Entities;
 using Microsoft.Data.SqlClient;
 
 namespace BSB.src.Common.Database.DBServices
@@ -13,8 +14,8 @@ namespace BSB.src.Common.Database.DBServices
 
         public async Task CommitAsync()
         {
-            // check for XAdmin
-            if (true)
+            bool isXAdmin = Convert.ToBoolean((Utils.GetCurrentLoggedInUser())?.IsXAdmin);
+            if (isXAdmin)
             {
                 await _transaction.CommitAsync();
             }

@@ -1,4 +1,5 @@
-﻿using Newtonsoft.Json;
+﻿using BSB.src.Domain.Entities;
+using Newtonsoft.Json;
 using System.Dynamic;
 
 namespace BSB.src.Common
